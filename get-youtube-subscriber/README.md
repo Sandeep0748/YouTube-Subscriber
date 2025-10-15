@@ -51,65 +51,122 @@ By default, the server will run on port `3000`. You can access the endpoints at 
 - **Method:** `GET`
 - **Description:** Retrieves subscriber information as an array of all subscribers in the database.
 - (http://localhost:3000/subscribers)
+# Get YouTube Subscriber (backend)
 
-#### 2. Get Subscriber Names
+Small Express + MongoDB API to store and return YouTube subscriber records. This repository contains endpoints to list subscribers, get names, fetch by id, and add new subscribers.
 
-- **Route:** `/subscribers/names`
-- **Method:** `GET`
-- **Description:** Retrieves subscriber names along with their respective channels.
-- (http://localhost:3000/subscribers/names)
+This README contains quick setup and testing instructions.
 
-#### 3. Get Subscriber Information by ID
+## Features
 
-- **Route:** `/subscribers/:id`
-- **Method:** `GET`
-- **Description:** Retrieves subscriber information for a specific user using their ID.
-- (http://localhost:3000/subscribers/:id)
+- List all subscribers
+- List subscriber names and channels
+- Fetch a subscriber by ID
+- Create a new subscriber (POST /subscribers)
 
-Replace `:id` with the actual subscriber ID.
+## Prerequisites
+
+- Node.js (recommended v18 or v20)
+- npm
+- A MongoDB instance (Atlas or local)
+
+## Quick start
+
+1. Clone the repo and install dependencies:
+
+```powershell
+git clone https://github.com/Sandeep0748/YouTube-Subscriber.git
+cd 'YouTube-Subscriber/get-youtube-subscriber'
+npm install
+```
+
+2. Create a `.env` file in the project root with the following variables (example):
+
+```properties
+# example .env
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.xyz.mongodb.net/subscribers?retryWrites=true&w=majority
+PORT=3000
+```
+
+3. Start the server:
+
+```powershell
+npm start
+```
+
+The API will be available at `http://localhost:3000`.
+
+## API Endpoints
+
+- GET /subscribers
+        - Returns an array of all subscribers.
+
+- GET /subscribers/names
+        - Returns subscriber names and channels (no IDs, no dates).
+
+- GET /subscribers/:id
+        - Returns a single subscriber by MongoDB `_id`.
+
+- POST /subscribers
+        - Creates a new subscriber. Request body (JSON):
+
+```json
+{
+        "name": "Jane Doe",
+        "subscribedChannel": "Awesome Channel",
+        "subscribedDate": "2025-10-15T12:00:00Z"  // optional
+}
+```
+
+        - Responses:
+                - 201: created, returns the created document (without `__v`).
+                - 400: missing `name` or `subscribedChannel`.
+                - 500: internal server error.
+
+## Example: create a subscriber (PowerShell)
+
+```powershell
+$body = @{ name = 'Jane Doe'; subscribedChannel = 'Awesome Channel' } | ConvertTo-Json
+Invoke-RestMethod -Uri http://localhost:3000/subscribers -Method Post -Body $body -ContentType 'application/json'
+```
+
+## Project structure
+
+```
+get-youtube-subscriber/
+├─ index.js             # server bootstrap and mongoose connect
+├─ package.json
+├─ .env                 # local env (not committed)
+├─ src/
+│  ├─ app.js            # express app and routes
+│  ├─ createDatabase.js # helper used to populate DB (optional)
+│  ├─ data.js           # sample data used by createDatabase
++│  └─ models/
+│     └─ subscribers.js  # Mongoose model
+```
+
+## Notes
+
+- `.env` contains your DB credentials — do not commit it. A `.gitignore` has been added to ignore `.env` and `node_modules`.
+- If you committed `.env` previously, rotate those credentials and remove the file from the repo history.
+
+## Deployment (Vercel)
+
+This repo contains a `vercel.json` configured to use `index.js` as the entry point for Vercel deployments. Add environment variables in the Vercel dashboard (`MONGO_URI`, `PORT`) before deploying.
+
+## Tests
+
+No automated tests are included. You can add tests under `__tests__` and run the existing test script in `package.json`.
 
 ## Contributing
 
-Contributions are welcome! If you'd like to contribute to this project, please follow these steps:
+Contributions welcome — open issues or PRs.
 
-1. Fork the repository.
-2. Create your feature branch (`git checkout -b feature/your-feature`).
-3. Commit your changes (`git commit -am 'Add some feature'`).
-4. Push to the branch (`git push origin feature/your-feature`).
-5. Create a new Pull Request.
+---
 
-## Application Folder Structure
+If you'd like, I can also:
 
-        Get-Youtube_subscribers  
-├─ src                   
-│  ├─ models             
-│  │  └─ subscribers.js  
-│  ├─ app.js             
-│  ├─ createDatabase.js  
-│  ├─ data.js            
-│  ├─ index.html         
-│  └─ youtube.png        
-├─ index.js              
-├─ package-lock.json     
-├─ package.json          
-├─ Readme.md 
-
-
-## Dependecies used in this project:
-
-* Express
-* Mongoose
-* nodemon
-* dotenv
-
-## Deployment
-
-*_Live link_* <br/>
-
-https://get-youtube-subscriber-nx8k.onrender.com
-
-
-## Acknowledgments
-
-Special thanks to [Express.js](https://expressjs.com/) and [Node.js](https://nodejs.org/) communities for their excellent libraries and documentation.
+- Add an `env.example` file with placeholders.
+- Add a simple test that verifies POST /subscribers works.
+- Remove `.env` from git history safely if it was committed earlier.
 
